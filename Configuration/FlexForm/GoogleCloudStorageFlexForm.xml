@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<T3DataStructure>
+    <meta>
+        <langDisable>1</langDisable>
+    </meta>
+    <ROOT>
+        <type>array</type>
+        <el>
+            <bucketName>
+                <TCEforms>
+                    <label>LLL:EXT:google_cloud_storage/Resources/Private/Language/backend.xlf:driverConfiguration.bucketName</label>
+                    <config>
+                        <type>input</type>
+                        <size>30</size>
+                    </config>
+                </TCEforms>
+            </bucketName>
+            <privateKeyJsonPathAndFileName>
+                <TCEforms>
+                    <label>LLL:EXT:google_cloud_storage/Resources/Private/Language/backend.xlf:driverConfiguration.privateKeyJsonPathAndFileName</label>
+                    <config>
+                        <type>input</type>
+                        <size>255</size>
+                    </config>
+                </TCEforms>
+            </privateKeyJsonPathAndFileName>
+        </el>
+    </ROOT>
+</T3DataStructure>

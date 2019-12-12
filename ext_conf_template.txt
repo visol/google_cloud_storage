@@ -1,0 +1,2 @@
+# cat=basic; type=boolean; label=Define whether TYPO3 should help to speed up the file admin module by caching GoogleCloudStorage resources.
+is_cache_enabled = 1

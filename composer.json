@@ -1,0 +1,24 @@
+{
+  "name": "visol/google-cloud-storage",
+  "description": "GoogleCloudStorage integration in TYPO3.",
+  "type": "typo3-cms-extension",
+  "license": [
+    "GPL-2.0-or-later"
+  ],
+  "require": {
+    "google/cloud-storage": "1.1.*",
+    "guzzlehttp/psr7": "1.*",
+    "ext-json": "*",
+    "ext-pdo": "*",
+    "ext-zlib": "*"
+  },
+  "autoload": {
+    "psr-4": {
+      "Visol\\GoogleCloudStorage\\": "Classes/"
+    }
+  },
+  "suggest": {
+  },
+  "require-dev": {
+  }
+}
