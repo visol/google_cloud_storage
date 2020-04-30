@@ -149,12 +149,14 @@ class GoogleCloudStorageDriver extends AbstractHierarchicalFilesystemDriver
     {
         $object = $this->getObjectData($fileIdentifier);
 
-        return sprintf(
-            '%s/%s/%s',
-            self::PUBLIC_STORAGE_URL,
-            $object['bucket'],
-            $object['name']
-        );
+        #return sprintf(
+        #    '%s/%s/%s',
+        #    self::PUBLIC_STORAGE_URL,
+        #    $object['bucket'],
+        #    $object['name']
+        #);
+
+        return $object['mediaLink'];
     }
 
     /**
