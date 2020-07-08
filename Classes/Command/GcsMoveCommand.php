@@ -14,6 +14,7 @@ use Google\Cloud\Core\ServiceBuilder;
 use Google\Cloud\Storage\Bucket;
 use Google\Cloud\Storage\StorageClient;
 use TYPO3\CMS\Core\Resource\Exception;
+use Visol\GoogleCloudStorage\Driver\GoogleCloudStorageDriver;
 use Visol\GoogleCloudStorage\Utility\GooglePathUtility;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -27,13 +28,14 @@ use TYPO3\CMS\Core\Resource\File;
 use TYPO3\CMS\Core\Resource\ResourceFactory;
 use TYPO3\CMS\Core\Resource\ResourceStorage;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Core\Utility\PathUtility;
 
 /**
  * Class GcsMoveCommand
  */
 class GcsMoveCommand extends Command
 {
+
+    const WARNING = 'warning';
 
     /**
      * @var SymfonyStyle
@@ -49,10 +51,16 @@ class GcsMoveCommand extends Command
      * @var ResourceStorage
      */
     protected $sourceStorage;
+
     /**
      * @var ResourceStorage
      */
     protected $targetStorage;
+
+    /**
+     * @var array
+     */
+    protected $missingFiles = [];
 
     /**
      * @var string
@@ -92,11 +100,40 @@ class GcsMoveCommand extends Command
                 'Mute output as much as possible',
                 false
             )
+            ->addOption(
+                'yes',
+                'y',
+                InputOption::VALUE_OPTIONAL,
+                'Accept everything by default',
+                false
+            )
+            ->addOption(
+                'filter',
+                '',
+                InputArgument::OPTIONAL,
+                'Filter pattern with possible wild cards, --filter="%.pdf"',
+                ''
+            )
+            ->addOption(
+                'limit',
+                '',
+                InputArgument::OPTIONAL,
+                'Add a possible offset, limit to restrain the number of files. e.g. 0,100',
+                ''
+            )
+            ->addOption(
+                'exclude',
+                '',
+                InputArgument::OPTIONAL,
+                'Exclude pattern, can contain comma separated values e.g. --exclude="/apps/%,/_temp/%"',
+                ''
+            )
             ->addArgument(
                 'source',
                 InputArgument::REQUIRED,
                 'Source storage identifier'
-            )->addArgument(
+            )
+            ->addArgument(
                 'target',
                 InputArgument::REQUIRED,
                 'Target storage identifier'
@@ -110,8 +147,8 @@ class GcsMoveCommand extends Command
      * Initializes the command after the input has been bound and before the input
      * is validated.
      *
-     * @see InputInterface::bind()
-     * @see InputInterface::validate()
+     * @param InputInterface $input
+     * @param OutputInterface $output
      */
     protected function initialize(InputInterface $input, OutputInterface $output)
     {
@@ -138,7 +175,38 @@ class GcsMoveCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $files = $this->getSourceFiles();
+        if (!$this->checkDriverType()) {
+            $this->log('Look out! target storage is not of type "google cloud storage"');
+            return 1;
+        }
+
+        $files = $this->getFiles($input);
+
+        if (count($files) === 0) {
+            $this->log('No files found, no work for me!');
+            return 0;
+        }
+
+        $this->log(
+            'I will move %s files from storage "%s" (%s) to "%s" (%s)',
+            [
+                count($files),
+                $this->sourceStorage->getUid(),
+                $this->sourceStorage->getName(),
+                $this->targetStorage->getUid(),
+                $this->targetStorage->getName(),
+            ]
+        );
+
+        // A chance to the user to confirm the action
+        if ($input->getOption('yes') === false) {
+            $response = $this->io->confirm('Shall I continue?', true);
+
+            if (!$response) {
+                $this->log('Script aborted');
+                return 0;
+            }
+        }
 
         $this->log(
             'Moving %s files from storage "%s" (%s) to "%s" (%s)',
@@ -148,8 +216,7 @@ class GcsMoveCommand extends Command
                 $this->sourceStorage->getUid(),
                 $this->targetStorage->getName(),
                 $this->targetStorage->getUid(),
-            ],
-            'info'
+            ]
         );
 
         $counter = 0;
@@ -189,14 +256,64 @@ class GcsMoveCommand extends Command
                 }
 
                 $counter++;
+            } else {
+
+                $this->log('Missing file %s', [$fileObject->getIdentifier()], self::WARNING);
+                // We could log the missing files
+                $this->missingFiles[] = $fileObject->getIdentifier();
             }
         }
+
         $this->log(LF);
         $this->log('Number of files moved: %s', [$counter]);
+
+        // Write possible log
+        if ($this->missingFiles) {
+            $this->writeLog('missing', $this->missingFiles);
+        }
+
+        return 0;
+    }
+
+    /**
+     * @return bool
+     */
+    protected function checkDriverType(): bool
+    {
+        return $this->targetStorage->getDriverType() === GoogleCloudStorageDriver::DRIVER_TYPE;
+    }
+
+    /**
+     * @param string $type
+     * @param array $files
+     */
+    protected function writeLog(string $type, array $files)
+    {
+        $logFileName = sprintf(
+            '/tmp/%s-files-%s-%s-log',
+            $type,
+            getmypid(),
+            uniqid()
+        );
+
+        // Write log file
+        file_put_contents($logFileName, var_export($files, true));
+
+        // Display the message
+        $this->log(
+            'Pay attention, I have found %s %s files. A log file has been written at %s',
+            [
+                $type,
+                count($files),
+                $logFileName,
+            ],
+            self::WARNING
+        );
     }
 
     /**
      * @param File $fileObject
+     *
      * @return string
      */
     protected function getAbsolutePath(File $fileObject): string
@@ -209,6 +326,7 @@ class GcsMoveCommand extends Command
 
     /**
      * @param File $fileObject
+     *
      * @return bool
      */
     protected function googleCloudStorageUploadFile(File $fileObject): bool
@@ -271,15 +389,18 @@ class GcsMoveCommand extends Command
                 1446553054
             );
         }
-        $googleCloud = new ServiceBuilder([
-            'keyFilePath' => $privateKeyPathAndFilename
-        ]);
+        $googleCloud = new ServiceBuilder(
+            [
+                'keyFilePath' => $privateKeyPathAndFilename
+            ]
+        );
 
         return $googleCloud->storage();
     }
 
     /**
      * @param string $key
+     *
      * @return string
      */
     public function getConfiguration(string $key): string
@@ -288,7 +409,7 @@ class GcsMoveCommand extends Command
             ? (string)$this->configuration[$key]
             : '';
     }
-    
+
     /**
      * @return object|QueryBuilder
      */
@@ -310,9 +431,11 @@ class GcsMoveCommand extends Command
     }
 
     /**
+     * @param InputInterface $input
+     *
      * @return array
      */
-    protected function getSourceFiles(): array
+    protected function getFiles(InputInterface $input): array
     {
         $query = $this->getQueryBuilder();
         $query
@@ -323,12 +446,52 @@ class GcsMoveCommand extends Command
                 $query->expr()->eq('missing', 0)
             );
 
+        // Possible custom filter
+        if ($input->getOption('filter')) {
+            $query->andWhere(
+                $query->expr()->like(
+                    'identifier',
+                    $query->expr()->literal($input->getOption('filter'))
+                )
+            );
+        }
+
+        // Possible custom exclude
+        if ($input->getOption('exclude')) {
+            $expressions = GeneralUtility::trimExplode(',', $input->getOption('exclude'));
+            foreach ($expressions as $expression) {
+                $query->andWhere(
+                    $query->expr()->notLike(
+                        'identifier',
+                        $query->expr()->literal($expression)
+                    )
+                );
+            }
+        }
+
+        // Set a possible offset, limit
+        if ($input->getOption('limit')) {
+            [$offsetOrLimit, $limit] = GeneralUtility::trimExplode(
+                ',',
+                $input->getOption('limit'),
+                true
+            );
+
+            if ($limit !== null) {
+                $query->setFirstResult((int)$offsetOrLimit);
+                $query->setMaxResults((int)$limit);
+            } else {
+                $query->setMaxResults((int)$offsetOrLimit);
+            }
+        }
+
         return $query->execute()->fetchAll();
     }
 
     /**
      * @param File $fileObject
      * @param array $values
+     *
      * @return int
      */
     protected function updateFile(File $fileObject, array $values): int
@@ -346,18 +509,27 @@ class GcsMoveCommand extends Command
     /**
      * @param string $message
      * @param array $arguments
-     * @param string $severity
+     * @param string $severity can be 'warning', 'error', 'success'
      */
-    protected function log(string $message, array $arguments = [], $severity = '')
+    protected function log(string $message = '', array $arguments = [], $severity = '')
     {
         if (!$this->isSilent()) {
+            $formattedMessage = vsprintf($message, $arguments);
             if ($severity) {
-                $message = '<' . $severity . '>' . $message . '</' . $severity . '>';
+                $this->io->$severity($formattedMessage);
+            } else {
+                $this->io->writeln($formattedMessage);
             }
-            $this->io->writeln(
-                vsprintf($message, $arguments)
-            );
         }
+    }
+
+    /**
+     * @param string $message
+     * @param array $arguments
+     */
+    protected function warning(string $message = '', array $arguments = [])
+    {
+        $this->log($message, $arguments, self::WARNING);
     }
 
     /**
