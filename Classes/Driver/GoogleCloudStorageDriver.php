@@ -156,7 +156,10 @@ class GoogleCloudStorageDriver extends AbstractHierarchicalFilesystemDriver
         #    $object['name']
         #);
 
-        return $object['mediaLink'];
+        $baseUri = $this->getConfiguration('baseUri');
+        return $baseUri
+            ? str_replace(self::PUBLIC_STORAGE_URL, $baseUri, $object['mediaLink'])
+            : $object['mediaLink'];
     }
 
     /**

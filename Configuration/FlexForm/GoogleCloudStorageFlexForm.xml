@@ -24,6 +24,15 @@
                     </config>
                 </TCEforms>
             </privateKeyJsonPathAndFileName>
+            <baseUri>
+                <TCEforms>
+                    <label>LLL:EXT:google_cloud_storage/Resources/Private/Language/backend.xlf:driverConfiguration.baseUri</label>
+                    <config>
+                        <type>input</type>
+                        <size>255</size>
+                    </config>
+                </TCEforms>
+            </baseUri>
         </el>
     </ROOT>
 </T3DataStructure>

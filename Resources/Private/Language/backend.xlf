@@ -7,6 +7,9 @@
             <trans-unit id="driverConfiguration.bucketName">
                 <source>Bucket Name</source>
             </trans-unit>
+            <trans-unit id="driverConfiguration.baseUri">
+                <source>Defines the root of the publicly accessible address pointing to a published resources</source>
+            </trans-unit>
             <trans-unit id="driverConfiguration.privateKeyJsonPathAndFileName">
                 <source>JSON file that contains the private key. Use relative path if stored outside the document root (recommended) e.g ../config/api-keys/my-private-key.json</source>
             </trans-unit>
