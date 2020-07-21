@@ -42,7 +42,7 @@ class GoogleCloudStorageDriver extends AbstractHierarchicalFilesystemDriver
 
     const UNSAFE_FILENAME_CHARACTER_EXPRESSION = '\\x00-\\x2C\\/\\x3A-\\x3F\\x5B-\\x60\\x7B-\\xBF';
 
-    private const PUBLIC_STORAGE_URL = 'https://storage.cloud.google.com';
+    private const GCSu_BASE_URL = 'https://storage.cloud.google.com';
 
     /**
      * The base URL that points to this driver's storage. As long is this is not set, it is assumed that this folder
@@ -151,12 +151,19 @@ class GoogleCloudStorageDriver extends AbstractHierarchicalFilesystemDriver
 
         #return sprintf(
         #    '%s/%s/%s',
-        #    self::PUBLIC_STORAGE_URL,
+        #    self::GCSu_BASE_URL,
         #    $object['bucket'],
         #    $object['name']
         #);
 
-        return $object['mediaLink'];
+        $baseUri = $this->getConfiguration('baseUri');
+        return $baseUri
+            ? str_replace(
+                self::GCSu_BASE_URL . DIRECTORY_SEPARATOR . $object['bucket'],
+                rtrim($baseUri, DIRECTORY_SEPARATOR),
+                $object['mediaLink']
+            )
+            : $object['mediaLink'];
     }
 
     /**
