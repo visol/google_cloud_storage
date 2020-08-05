@@ -1427,19 +1427,6 @@ class GoogleCloudStorageDriver extends AbstractHierarchicalFilesystemDriver
     }
 
     /**
-     * Get the SignalSlot dispatcher
-     *
-     * @return Dispatcher
-     */
-    protected function getSignalSlotDispatcher()
-    {
-        if (!isset($this->signalSlotDispatcher)) {
-            $this->signalSlotDispatcher = GeneralUtility::makeInstance(ObjectManager::class)->get(Dispatcher::class);
-        }
-        return $this->signalSlotDispatcher;
-    }
-
-    /**
      * @return GoogleCloudStorageTypo3Cache|object
      */
     protected function getCache()
