@@ -981,7 +981,10 @@ class GoogleCloudStorageDriver extends AbstractHierarchicalFilesystemDriver
      */
     public function dumpFileContents($identifier)
     {
-        throw new \RuntimeException('Not implemented "dumpFileContents" action!', 1570728204);
+        $identifier = GooglePathUtility::normalizeGooglePath($identifier);
+        $stream = $this->getBucket()->object($identifier)->downloadAsStream();
+
+        file_put_contents('php://output', $stream);
     }
 
     /**
