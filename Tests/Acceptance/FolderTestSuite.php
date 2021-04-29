@@ -1,0 +1,73 @@
+<?php
+
+namespace Visol\GoogleCloudStorage\Tests\Acceptance;
+
+
+use Visol\GoogleCloudStorage\Tests\Acceptance\FileOperation\AddFileOperationTest;
+use Visol\GoogleCloudStorage\Tests\Acceptance\FileOperation\CopyFolderOperationTests;
+use Visol\GoogleCloudStorage\Tests\Acceptance\FileOperation\CountFilesInFolderOperationTests;
+use Visol\GoogleCloudStorage\Tests\Acceptance\FileOperation\CreateFolderOperationTests;
+use Visol\GoogleCloudStorage\Tests\Acceptance\FileOperation\DeleteFolderOperationTest;
+use Visol\GoogleCloudStorage\Tests\Acceptance\FileOperation\RenameFolderOperationTests;
+
+class FolderTestSuite extends AbstractCloudinaryTestSuite
+{
+
+    /**
+     * @var
+     */
+    protected $files = [
+        'sub-folder/image-jpeg.jpeg',
+        'sub-folder/image-tiff.tiff',
+        'sub-folder/sub-sub-folder/image-jpeg.jpeg',
+        'sub-folder/sub-sub-folder/image-tiff.tiff',
+        'image-jpg.jpg',
+        'image-png.png',
+        'document.odt',
+        'document.pdf',
+        'video.youtube',
+        'video.mp4',
+    ];
+
+    public function runTests()
+    {
+
+        foreach ($this->files as $fileName) {
+
+            // Upload oll files
+            $test = new AddFileOperationTest($this, $fileName);
+            $test->run();
+        }
+
+        // Count files
+        $test = new CountFilesInFolderOperationTests($this, '/');
+        $test->setExpectedNumberOfFiles(6)
+            ->setExpectedNumberOfFolders(1) // _processed_ folder must be taken into consideration in the root folder
+            ->run();
+
+        // Count files
+        $test = new CountFilesInFolderOperationTests($this, '/sub-folder/');
+        $test->setExpectedNumberOfFiles(2)
+            ->setExpectedNumberOfFolders(1)
+            ->run();
+
+        $test = new CopyFolderOperationTests($this, '/sub-folder/');
+        $test->setTargetFolderName('sub-folder-copied');
+        $test->run();
+
+        $test = new RenameFolderOperationTests($this, '/sub-folder/');
+        $test->setTargetFolderName('sub-folder-renamed');
+        $test->run();
+
+        $test = new CreateFolderOperationTests($this, '/sub-folder-created/');
+        $test->run();
+
+        # todo rename is handled differently from move
+        #$test = new MoveFolderOperationTests($this, '/sub-folder/');
+        #$test->setTargetFolderName('sub-folder-renamed');
+        #$test->run();
+
+        $test = new DeleteFolderOperationTest($this);
+        $test->run();
+    }
+}
