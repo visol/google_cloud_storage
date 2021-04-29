@@ -1,10 +1,9 @@
-
 ######################################
 # Ajax request configuration
 ######################################
-page_1573555440 = PAGE
-page_1573555440 {
-    typeNum = 1573555440
+page_1596788260 = PAGE
+page_1596788260 {
+    typeNum = 1596788260
     config {
         xhtml_cleaning = 0
         admPanel = 0
@@ -20,8 +19,8 @@ page_1573555440 {
             extensionName = GoogleCloudStorage
             pluginName = Cache
             switchableControllerActions {
-                GoogleCloudStorageTypo3CacheManager {
-                    1 = flush
+                GcsScan {
+                    1 = scan
                 }
             }
         }

@@ -386,7 +386,7 @@ class GcsMoveCommand extends Command
                     'The Google Cloud Storage private key file "%s" does not exist. Either the file is missing or you need to adjust your settings.',
                     $privateKeyPathAndFilename
                 ),
-                1446553054
+                1446553055
             );
         }
         $googleCloud = new ServiceBuilder(

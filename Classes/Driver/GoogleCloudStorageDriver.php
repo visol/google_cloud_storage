@@ -28,7 +28,6 @@ use TYPO3\CMS\Core\Resource\Driver\AbstractHierarchicalFilesystemDriver;
 use TYPO3\CMS\Core\Resource\Exception;
 use TYPO3\CMS\Core\Resource\ResourceStorage;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
-use TYPO3\CMS\Extbase\SignalSlot\Dispatcher;
 use TYPO3\CMS\Extbase\Utility\LocalizationUtility;
 
 /**
@@ -84,11 +83,6 @@ class GoogleCloudStorageDriver extends AbstractHierarchicalFilesystemDriver
      * @var string
      */
     protected $languageFile = 'LLL:EXT:google_cloud_storage/Resources/Private/Language/backend.xlf';
-
-    /**
-     * @var Dispatcher
-     */
-    protected $signalSlotDispatcher;
 
     /**
      * @var GoogleCloudStorageTypo3Cache
@@ -1248,7 +1242,7 @@ class GoogleCloudStorageDriver extends AbstractHierarchicalFilesystemDriver
                     'The Google Cloud Storage private key file "%s" does not exist. Either the file is missing or you need to adjust your settings.',
                     $privateKeyPathAndFilename
                 ),
-                1446553054
+                1446553056
             );
         }
         $googleCloud = new ServiceBuilder([

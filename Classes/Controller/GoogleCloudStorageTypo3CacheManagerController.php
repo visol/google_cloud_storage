@@ -3,7 +3,7 @@
 namespace Visol\GoogleCloudStorage\Controller;
 
 /*
- * This file is part of the Fab/Mailing project under GPLv2 or later.
+ * This file is part of the Visol/GoogleCloudStorage project under GPLv2 or later.
  *
  * For the full copyright and license information, please read the
  * LICENSE.md file that was distributed with this source code.
@@ -17,6 +17,7 @@ use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
 
 /**
  * Class GoogleCloudStorageTypo3CacheManagerController
+ * @obsolete
  */
 class GoogleCloudStorageTypo3CacheManagerController extends ActionController
 {

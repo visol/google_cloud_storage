@@ -14,11 +14,11 @@ call_user_func(
             'Visol.GoogleCloudStorage',
             'Cache',
             [
-                'GoogleCloudStorageTypo3CacheManager' => 'flush',
+                'GcsScan' => 'scan',
             ],
             // non-cacheable actions
             [
-                'GoogleCloudStorageTypo3CacheManager' => 'flush',
+                'GcsScan' => 'scan',
             ]
         );
 
