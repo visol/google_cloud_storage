@@ -1,2 +1,5 @@
 # cat=basic; type=boolean; label=Define whether TYPO3 should help to speed up the file admin module by caching GoogleCloudStorage resources.
 is_cache_enabled = 1
+
+# cat=google cloud storage; type=int; label=Default google cloud storage where to upload "local" file (files usually stored on storage = 0)
+default_google_cloud_storage = 0
