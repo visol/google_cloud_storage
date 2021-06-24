@@ -42,7 +42,8 @@ class GoogleCloudStorageDriver extends AbstractHierarchicalFilesystemDriver
 
     const UNSAFE_FILENAME_CHARACTER_EXPRESSION = '\\x00-\\x2C\\/\\x3A-\\x3F\\x5B-\\x60\\x7B-\\xBF';
 
-    private const GCSu_BASE_URL = 'https://storage.cloud.google.com';
+    private const GCS_BASE_URL = 'https://storage.cloud.google.com';
+    private const GCS_DOWNLOAD_URL = 'https://www.googleapis.com/download/storage/v1/b';
 
     /**
      * The base URL that points to this driver's storage. As long is this is not set, it is assumed that this folder
@@ -100,7 +101,6 @@ class GoogleCloudStorageDriver extends AbstractHierarchicalFilesystemDriver
      */
     public function __construct(array $configuration = [])
     {
-
         $this->configuration = $configuration;
         $this->configuration['bucketName'] = '';
         parent::__construct($configuration);
@@ -149,21 +149,33 @@ class GoogleCloudStorageDriver extends AbstractHierarchicalFilesystemDriver
     {
         $object = $this->getObjectData($fileIdentifier);
 
-        #return sprintf(
-        #    '%s/%s/%s',
-        #    self::GCSu_BASE_URL,
-        #    $object['bucket'],
-        #    $object['name']
-        #);
-
         $baseUri = $this->getConfiguration('baseUri');
-        return $baseUri
-            ? str_replace(
-                self::GCSu_BASE_URL . DIRECTORY_SEPARATOR . $object['bucket'],
-                rtrim($baseUri, DIRECTORY_SEPARATOR),
-                $object['mediaLink']
-            )
-            : $object['mediaLink'];
+
+        // Default value
+        $publicUrl = $object['mediaLink'];
+
+        // We could have a configured base URL.
+        if ($baseUri) {
+
+            if (strpos( $object['mediaLink'], self::GCS_BASE_URL) === 0) {
+                $publicUrl = str_replace(
+                    self::GCS_BASE_URL . DIRECTORY_SEPARATOR . $object['bucket'],
+                    rtrim($baseUri, DIRECTORY_SEPARATOR),
+                    $object['mediaLink']
+                );
+
+            } elseif (strpos( $object['mediaLink'], self::GCS_DOWNLOAD_URL) === 0) {
+                $publicUrl = str_replace(
+                    self::GCS_DOWNLOAD_URL . DIRECTORY_SEPARATOR . $object['bucket'] . DIRECTORY_SEPARATOR . 'o',
+                    rtrim($baseUri, DIRECTORY_SEPARATOR),
+                    strtok( // remove the query part of the URL e.g "?"
+                        urldecode($object['mediaLink']), // replace the encoded slash "/"
+                        '?'
+                    )
+                );
+            }
+        }
+        return $publicUrl;
     }
 
     /**
