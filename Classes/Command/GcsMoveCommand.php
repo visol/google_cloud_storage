@@ -15,6 +15,7 @@ use Google\Cloud\Storage\Bucket;
 use Google\Cloud\Storage\StorageClient;
 use TYPO3\CMS\Core\Resource\Exception;
 use Visol\GoogleCloudStorage\Driver\GoogleCloudStorageDriver;
+use Visol\GoogleCloudStorage\Services\ConfigurationService;
 use Visol\GoogleCloudStorage\Utility\GooglePathUtility;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -405,9 +406,12 @@ class GcsMoveCommand extends Command
      */
     public function getConfiguration(string $key): string
     {
-        return isset($this->configuration[$key])
-            ? (string)$this->configuration[$key]
-            : '';
+        /** @var ConfigurationService $configurationService */
+        $configurationService = GeneralUtility::makeInstance(
+            ConfigurationService::class,
+            $this->configuration
+        );
+        return $configurationService->get($key);
     }
 
     /**
