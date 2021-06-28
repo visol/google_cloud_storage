@@ -143,7 +143,7 @@ class GoogleCloudStorageTypo3Cache
         return sprintf(
             'storage-%s-folders-%s',
             $this->storageUid,
-            str_replace(['/', ' '], ['%', '%'], $folderIdentifier)
+            md5($folderIdentifier)
         );
     }
 
@@ -157,7 +157,7 @@ class GoogleCloudStorageTypo3Cache
         return sprintf(
             'storage-%s-files-%s',
             $this->storageUid,
-            str_replace('/', '%', $folderIdentifier)
+            md5($folderIdentifier)
         );
     }
 
