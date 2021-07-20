@@ -154,7 +154,7 @@ Move bunch of images from a local storage to a Google cloud bucket.
 **CAUTIOUS!**
 1. Moving means: we are "manually" uploading a file
 to the GoogleCloudStorage storage and "manually" (= via SQL request) deleting the one from the local storage.
-Finally we are changing the `sys_file.storage value` to the cloudinary storage id.
+Finally, we are changing the `sys_file.storage value` to the cloudinary storage id.
 Consequently, the file uid will be kept. File references are not touched.
 
 
@@ -179,6 +179,23 @@ Copying /introduction/images/content/content-quote.png
 ...
 Number of file copied: 64
 ```
+Troubleshooting
+---------------
+
+**Symptome**:
+clicking on folder in the BE file module does not open the folder.
+
+**Reason**:
+we need to make sure each folder contains a hidden file `.keep` so that the API can recognize it as "folder" on a GCS. This file `.keep` is transparent in the BE module.
+However, when manually uploading files via the utility command `gsutil`, we are lacking this file.
+
+**Solution**:
+adjust the storage name and execute this script. This will populate the folders with the lacking file
+
+```shell
+STORAGE="fab-bucket"
+touch .keep && gsutil ls -R gs://${STORAGE}/ | grep -e ":$" | while read F; do echo "\nProcessing ${F/\/:/\/}" && gsutil cp .keep ${F/\/:/\/}; done
+```
 
 Development tools
 -----------------
@@ -201,7 +218,7 @@ Web Hook
 
 Whenever uploading or editing a file through the GoogleCloudStorage Manager you can configure an URL
 as a web hook to be called to invalidate the cache in TYPO3.
-This is highly recommended to keep the data consistent between GoogleCloudStorage and TYPO3.
+This is recommended to keep the data consistent between GoogleCloudStorage and TYPO3.
 
 ```shell script
 https://domain.tld/?type=1573555440
