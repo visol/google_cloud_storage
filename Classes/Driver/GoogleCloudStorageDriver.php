@@ -513,12 +513,16 @@ class GoogleCloudStorageDriver extends AbstractHierarchicalFilesystemDriver
         $temporaryPath = $this->getTemporaryPathForFile($fileIdentifier);
 
         if ((!is_file($temporaryPath) || !filesize($temporaryPath)) && $this->objectExists($fileIdentifier)) {
+            $url = $this->getPublicUrl($fileIdentifier) . '?' . time();
             $this->log('Downloading for local processing file "%s"', [$fileIdentifier]);
-            $this->log('Public URL "%s"', [$this->getPublicUrl($fileIdentifier)]);
+            $this->log('Public URL "%s"', [$url]);
             $this->log('Temporary path "%s"', [$temporaryPath]);
 
-            $this->getobject($fileIdentifier)
-                ->downloadToFile($temporaryPath);
+            // We have cache problem with this approach
+            //$this->getObject($fileIdentifier)
+            //    ->downloadToFile($temporaryPath);
+
+            file_put_contents($temporaryPath, file_get_contents($url));
         }
 
         return $temporaryPath;
