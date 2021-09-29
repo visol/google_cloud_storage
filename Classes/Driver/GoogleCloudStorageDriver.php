@@ -1243,6 +1243,12 @@ class GoogleCloudStorageDriver extends AbstractHierarchicalFilesystemDriver
                     GooglePathUtility::computeFileIdentifier($objectData['name'])
                 );
 
+                // We must explicitly ask the API to retrieve more info about the object.
+                // For instance, we need 'mediaLink' which will then be used to compute the public URL.
+                if (!$objectData['mediaLink']) {
+                    $objectData = $this->getObject($fileIdentifier)->info();
+                }
+
                 $files[$fileIdentifier] = $objectData;
             }
         }
