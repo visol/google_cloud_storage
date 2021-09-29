@@ -37,12 +37,10 @@ use TYPO3\CMS\Extbase\Utility\LocalizationUtility;
  */
 class GoogleCloudStorageDriver extends AbstractHierarchicalFilesystemDriver
 {
+
     public const DRIVER_TYPE = 'VisolGoogleCloudStorage';
-
     const ROOT_FOLDER_IDENTIFIER = '/';
-
     const UNSAFE_FILENAME_CHARACTER_EXPRESSION = '\\x00-\\x2C\\/\\x3A-\\x3F\\x5B-\\x60\\x7B-\\xBF';
-
     private const GCS_BASE_URL = 'https://storage.cloud.google.com';
     private const GCS_DOWNLOAD_URL = 'https://www.googleapis.com/download/storage/v1/b';
 
@@ -115,6 +113,7 @@ class GoogleCloudStorageDriver extends AbstractHierarchicalFilesystemDriver
 
     /**
      * @param string $key
+     *
      * @return string
      */
     public function getConfiguration(string $key): string
@@ -147,6 +146,7 @@ class GoogleCloudStorageDriver extends AbstractHierarchicalFilesystemDriver
 
     /**
      * @param string $fileIdentifier
+     *
      * @return string
      */
     public function getPublicUrl($fileIdentifier)
@@ -161,14 +161,13 @@ class GoogleCloudStorageDriver extends AbstractHierarchicalFilesystemDriver
         // We could have a configured base URL.
         if ($baseUri) {
 
-            if (strpos( $object['mediaLink'], self::GCS_BASE_URL) === 0) {
+            if (strpos($object['mediaLink'], self::GCS_BASE_URL) === 0) {
                 $publicUrl = str_replace(
                     self::GCS_BASE_URL . DIRECTORY_SEPARATOR . $object['bucket'],
                     rtrim($baseUri, DIRECTORY_SEPARATOR),
                     $object['mediaLink']
                 );
-
-            } elseif (strpos( $object['mediaLink'], self::GCS_DOWNLOAD_URL) === 0) {
+            } elseif (strpos($object['mediaLink'], self::GCS_DOWNLOAD_URL) === 0) {
                 $publicUrl = str_replace(
                     self::GCS_DOWNLOAD_URL . DIRECTORY_SEPARATOR . $object['bucket'] . DIRECTORY_SEPARATOR . 'o',
                     rtrim($baseUri, DIRECTORY_SEPARATOR),
@@ -201,6 +200,7 @@ class GoogleCloudStorageDriver extends AbstractHierarchicalFilesystemDriver
      *
      * @param string $fileIdentifier
      * @param string $hashAlgorithm
+     *
      * @return string
      */
     public function hash($fileIdentifier, $hashAlgorithm)
@@ -234,6 +234,7 @@ class GoogleCloudStorageDriver extends AbstractHierarchicalFilesystemDriver
      * @param string $fileIdentifier
      * @param array $propertiesToExtract Array of properties which are be extracted
      *                                    If empty all will be extracted
+     *
      * @return array
      * @throws \Exception
      */
@@ -278,6 +279,7 @@ class GoogleCloudStorageDriver extends AbstractHierarchicalFilesystemDriver
      * Checks if a file exists
      *
      * @param string $identifier
+     *
      * @return bool
      */
     public function fileExists($identifier)
@@ -292,6 +294,7 @@ class GoogleCloudStorageDriver extends AbstractHierarchicalFilesystemDriver
      * Checks if a folder exists
      *
      * @param string $folderIdentifier
+     *
      * @return bool
      */
     public function folderExists($folderIdentifier)
@@ -309,6 +312,7 @@ class GoogleCloudStorageDriver extends AbstractHierarchicalFilesystemDriver
     /**
      * @param string $fileName
      * @param string $folderIdentifier
+     *
      * @return bool
      */
     public function fileExistsInFolder($fileName, $folderIdentifier)
@@ -322,6 +326,7 @@ class GoogleCloudStorageDriver extends AbstractHierarchicalFilesystemDriver
      *
      * @param string $folderName
      * @param string $folderIdentifier
+     *
      * @return bool
      */
     public function folderExistsInFolder($folderName, $folderIdentifier)
@@ -336,6 +341,7 @@ class GoogleCloudStorageDriver extends AbstractHierarchicalFilesystemDriver
      *
      * @param string $folderName The name of the target folder
      * @param string $folderIdentifier
+     *
      * @return string
      */
     public function getFolderInFolder($folderName, $folderIdentifier)
@@ -349,6 +355,7 @@ class GoogleCloudStorageDriver extends AbstractHierarchicalFilesystemDriver
      * @param string $newFileName optional, if not given original name is used
      * @param bool $removeOriginal if set the original file will be removed
      *                                after successful operation
+     *
      * @return string the identifier of the new file
      * @throws \Exception
      */
@@ -399,6 +406,7 @@ class GoogleCloudStorageDriver extends AbstractHierarchicalFilesystemDriver
      * @param string $fileIdentifier
      * @param string $targetFolderIdentifier
      * @param string $fileName
+     *
      * @return string the Identifier of the new file
      */
     public function copyFileWithinStorage($fileIdentifier, $targetFolderIdentifier, $fileName)
@@ -423,6 +431,7 @@ class GoogleCloudStorageDriver extends AbstractHierarchicalFilesystemDriver
      *
      * @param string $fileIdentifier
      * @param string $localFilePath
+     *
      * @return bool TRUE if the operation succeeded
      */
     public function replaceFile($fileIdentifier, $localFilePath)
@@ -441,6 +450,7 @@ class GoogleCloudStorageDriver extends AbstractHierarchicalFilesystemDriver
      * this has to be taken care of in the upper layers (e.g. the Storage)!
      *
      * @param string $fileIdentifier
+     *
      * @return bool TRUE if deleting the file succeeded
      */
     public function deleteFile($fileIdentifier)
@@ -462,6 +472,7 @@ class GoogleCloudStorageDriver extends AbstractHierarchicalFilesystemDriver
      *
      * @param string $folderIdentifier
      * @param bool $deleteRecursively
+     *
      * @return bool
      */
     public function deleteFolder($folderIdentifier, $deleteRecursively = false)
@@ -505,6 +516,7 @@ class GoogleCloudStorageDriver extends AbstractHierarchicalFilesystemDriver
      *                         operations. This might speed up things, e.g. by using
      *                         a cached local version. Never modify the file if you
      *                         have set this flag!
+     *
      * @return string The path to the file on the local disk
      * @throws \RuntimeException
      */
@@ -513,8 +525,8 @@ class GoogleCloudStorageDriver extends AbstractHierarchicalFilesystemDriver
         $temporaryPath = $this->getTemporaryPathForFile($fileIdentifier);
 
         if ((!is_file($temporaryPath) || !filesize($temporaryPath)) && $this->objectExists($fileIdentifier)) {
-            $url = $this->getPublicUrl($fileIdentifier) . '?' . time();
             $this->log('Downloading for local processing file "%s"', [$fileIdentifier]);
+            $url = $this->getPublicUrl($fileIdentifier) . '?' . time();
             $this->log('Public URL "%s"', [$url]);
             $this->log('Temporary path "%s"', [$temporaryPath]);
 
@@ -533,6 +545,7 @@ class GoogleCloudStorageDriver extends AbstractHierarchicalFilesystemDriver
      *
      * @param string $fileName
      * @param string $parentFolderIdentifier
+     *
      * @return string
      */
     public function createFile($fileName, $parentFolderIdentifier)
@@ -547,6 +560,7 @@ class GoogleCloudStorageDriver extends AbstractHierarchicalFilesystemDriver
      * @param string $newFolderName
      * @param string $parentFolderIdentifier
      * @param bool $recursive
+     *
      * @return string the Identifier of the new folder
      */
     public function createFolder($newFolderName, $parentFolderIdentifier = '', $recursive = false)
@@ -578,6 +592,7 @@ class GoogleCloudStorageDriver extends AbstractHierarchicalFilesystemDriver
      * of processing resources and money) for large files.
      *
      * @param string $fileIdentifier
+     *
      * @return string The file contents
      */
     public function getFileContents($fileIdentifier)
@@ -590,6 +605,7 @@ class GoogleCloudStorageDriver extends AbstractHierarchicalFilesystemDriver
      *
      * @param string $fileIdentifier
      * @param string $contents
+     *
      * @return int
      */
     public function setFileContents($fileIdentifier, $contents)
@@ -602,6 +618,7 @@ class GoogleCloudStorageDriver extends AbstractHierarchicalFilesystemDriver
      *
      * @param string $fileIdentifier
      * @param string $newFileIdentifier The target path (including the file name!)
+     *
      * @return string The identifier of the file after renaming
      */
     public function renameFile($fileIdentifier, $newFileIdentifier)
@@ -622,6 +639,7 @@ class GoogleCloudStorageDriver extends AbstractHierarchicalFilesystemDriver
 
     /**
      * @param string $newFileIdentifier
+     *
      * @return bool
      */
     public function isFileIdentifier(string $newFileIdentifier): bool
@@ -634,6 +652,7 @@ class GoogleCloudStorageDriver extends AbstractHierarchicalFilesystemDriver
      *
      * @param string $folderIdentifier
      * @param string $newFolderName
+     *
      * @return array A map of old to new file identifiers of all affected resources
      */
     public function renameFolder($folderIdentifier, $newFolderName)
@@ -712,6 +731,7 @@ class GoogleCloudStorageDriver extends AbstractHierarchicalFilesystemDriver
      * @param string $targetFolderIdentifier
      * @param string $newFolderName
      * @param bool $deleteFileAfterCopy
+     *
      * @return array
      * @throws \TYPO3\CMS\Core\Exception
      */
@@ -766,6 +786,7 @@ class GoogleCloudStorageDriver extends AbstractHierarchicalFilesystemDriver
      * Checks if a folder contains files and (if supported) other folders.
      *
      * @param string $folderIdentifier
+     *
      * @return bool TRUE if there are no files and folders within $folder
      */
     public function isFolderEmpty($folderIdentifier)
@@ -788,6 +809,7 @@ class GoogleCloudStorageDriver extends AbstractHierarchicalFilesystemDriver
      *
      * @param string $folderIdentifier
      * @param string $identifier identifier to be checked against $folderIdentifier
+     *
      * @return bool TRUE if $content is within or matches $folderIdentifier
      */
     public function isWithin($folderIdentifier, $identifier)
@@ -811,6 +833,7 @@ class GoogleCloudStorageDriver extends AbstractHierarchicalFilesystemDriver
      * Returns information about a file.
      *
      * @param string $folderIdentifier
+     *
      * @return array
      */
     public function getFolderInfoByIdentifier($folderIdentifier)
@@ -828,6 +851,7 @@ class GoogleCloudStorageDriver extends AbstractHierarchicalFilesystemDriver
      *
      * @param string $fileName
      * @param string $folderIdentifier
+     *
      * @return string File Identifier
      */
     public function getFileInFolder($fileName, $folderIdentifier)
@@ -853,8 +877,9 @@ class GoogleCloudStorageDriver extends AbstractHierarchicalFilesystemDriver
      *
      * @return array of FileIdentifiers
      */
-    public function getFilesInFolder($folderIdentifier, $start = 0, $numberOfItems = 40, $recursive = false, array $filenameFilterCallbacks = [], $sort = '', $sortRev = false)
-    {
+    public function getFilesInFolder(
+        $folderIdentifier, $start = 0, $numberOfItems = 40, $recursive = false, array $filenameFilterCallbacks = [], $sort = '', $sortRev = false
+    ) {
         if ($folderIdentifier === '') {
             throw new \RuntimeException(
                 'Something went wrong in method "getFilesInFolder"! $folderIdentifier can not be empty',
@@ -928,6 +953,7 @@ class GoogleCloudStorageDriver extends AbstractHierarchicalFilesystemDriver
      * @param string $folderIdentifier
      * @param bool $recursive
      * @param array $filenameFilterCallbacks callbacks for filtering the items
+     *
      * @return int Number of files in folder
      */
     public function countFilesInFolder($folderIdentifier, $recursive = false, array $filenameFilterCallbacks = [])
@@ -940,6 +966,7 @@ class GoogleCloudStorageDriver extends AbstractHierarchicalFilesystemDriver
 
     /**
      * Returns a list of folders inside the specified path
+     *
      * @param string $folderIdentifier
      * @param int $start
      * @param int $numberOfItems
@@ -951,10 +978,12 @@ class GoogleCloudStorageDriver extends AbstractHierarchicalFilesystemDriver
      *                      If a driver does not support the given property, it
      *                      should fall back to "name".
      * @param bool $sortRev TRUE to indicate reverse sorting (last to first)
+     *
      * @return array
      */
-    public function getFoldersInFolder($folderIdentifier, $start = 0, $numberOfItems = 40, $recursive = false, array $folderNameFilterCallbacks = [], $sort = '', $sortRev = false)
-    {
+    public function getFoldersInFolder(
+        $folderIdentifier, $start = 0, $numberOfItems = 40, $recursive = false, array $folderNameFilterCallbacks = [], $sort = '', $sortRev = false
+    ) {
         if (!isset($this->cachedFolders[$folderIdentifier])) {
             // Try to fetch from the cache
             $this->cachedFolders[$folderIdentifier] = $this->getCache()->getCachedFolders($folderIdentifier);
@@ -984,6 +1013,7 @@ class GoogleCloudStorageDriver extends AbstractHierarchicalFilesystemDriver
      * @param string $folderIdentifier
      * @param bool $recursive
      * @param array $folderNameFilterCallbacks callbacks for filtering the items
+     *
      * @return int Number of folders in folder
      */
     public function countFoldersInFolder($folderIdentifier, $recursive = false, array $folderNameFilterCallbacks = [])
@@ -997,6 +1027,7 @@ class GoogleCloudStorageDriver extends AbstractHierarchicalFilesystemDriver
      * buffer before. Will be taken care of by the Storage.
      *
      * @param string $identifier
+     *
      * @return void
      */
     public function dumpFileContents($identifier)
@@ -1012,6 +1043,7 @@ class GoogleCloudStorageDriver extends AbstractHierarchicalFilesystemDriver
      * (keys r, w) of bool flags
      *
      * @param string $identifier
+     *
      * @return array
      */
     public function getPermissions($identifier)
@@ -1043,8 +1075,10 @@ class GoogleCloudStorageDriver extends AbstractHierarchicalFilesystemDriver
      * Returns a string where any character not matching [.a-zA-Z0-9_-] is
      * substituted by '_'
      * Trailing dots are removed
+     *
      * @param string $fileName Input string, typically the body of a fileName
      * @param string $charset Charset of the a fileName (defaults to current charset; depending on context)
+     *
      * @return string Output string with any characters not matching [.a-zA-Z0-9_-] is substituted by '_' and trailing dots removed
      * @throws Exception\InvalidFileNameException
      */
@@ -1071,6 +1105,7 @@ class GoogleCloudStorageDriver extends AbstractHierarchicalFilesystemDriver
 
     /**
      * @param string $folderIdentifier
+     *
      * @return array
      */
     protected function getDataFolders(string $folderIdentifier): array
@@ -1096,6 +1131,7 @@ class GoogleCloudStorageDriver extends AbstractHierarchicalFilesystemDriver
 
     /**
      * @param string $folderIdentifier
+     *
      * @return array
      */
     protected function getRecursiveDataFolders(string $folderIdentifier): array
@@ -1116,6 +1152,7 @@ class GoogleCloudStorageDriver extends AbstractHierarchicalFilesystemDriver
 
     /**
      * @param string $folderIdentifier
+     *
      * @return array
      */
     protected function getFolderObjects(string $folderIdentifier): array
@@ -1145,6 +1182,7 @@ class GoogleCloudStorageDriver extends AbstractHierarchicalFilesystemDriver
 
     /**
      * @param string $folderIdentifier
+     *
      * @return ObjectIterator
      */
     protected function getObjects(string $folderIdentifier): ObjectIterator
@@ -1186,6 +1224,7 @@ class GoogleCloudStorageDriver extends AbstractHierarchicalFilesystemDriver
     /**
      * @param string $folderIdentifier
      * @param bool $hideKeepFile We don't want the .keep special files to be listed
+     *
      * @return array
      * @throws Exception\InvalidPathException
      * @throws \TYPO3\CMS\Core\Exception
@@ -1217,6 +1256,7 @@ class GoogleCloudStorageDriver extends AbstractHierarchicalFilesystemDriver
 
     /**
      * @param $fileName
+     *
      * @return bool
      */
     protected function isKeepFile($fileName): bool
@@ -1283,6 +1323,7 @@ class GoogleCloudStorageDriver extends AbstractHierarchicalFilesystemDriver
 
     /**
      * @param string $fileIdentifier
+     *
      * @return array|false
      */
     protected function getObjectData(string $fileIdentifier)
@@ -1310,6 +1351,7 @@ class GoogleCloudStorageDriver extends AbstractHierarchicalFilesystemDriver
 
     /**
      * @param string $fileIdentifier
+     *
      * @return StorageObject
      * @throws \TYPO3\CMS\Core\Exception
      */
@@ -1323,6 +1365,7 @@ class GoogleCloudStorageDriver extends AbstractHierarchicalFilesystemDriver
     /**
      * @param string $fileIdentifier
      * @param string $newName
+     *
      * @return string
      */
     protected function computeNewFileNameAndIdentifier(string $fileIdentifier, string $newName): string
@@ -1399,6 +1442,7 @@ class GoogleCloudStorageDriver extends AbstractHierarchicalFilesystemDriver
      * Checks if an object exists
      *
      * @param string $fileIdentifier
+     *
      * @return bool
      */
     protected function objectExists(string $fileIdentifier)
