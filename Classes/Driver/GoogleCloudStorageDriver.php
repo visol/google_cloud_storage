@@ -878,8 +878,15 @@ class GoogleCloudStorageDriver extends AbstractHierarchicalFilesystemDriver
      * @return array of FileIdentifiers
      */
     public function getFilesInFolder(
-        $folderIdentifier, $start = 0, $numberOfItems = 40, $recursive = false, array $filenameFilterCallbacks = [], $sort = '', $sortRev = false
-    ) {
+        $folderIdentifier,
+        $start = 0,
+        $numberOfItems = 40,
+        $recursive = false,
+        array $filenameFilterCallbacks = [],
+        $sort = 'file',
+        $sortRev = false
+    )
+    {
         if ($folderIdentifier === '') {
             throw new \RuntimeException(
                 'Something went wrong in method "getFilesInFolder"! $folderIdentifier can not be empty',
@@ -899,16 +906,9 @@ class GoogleCloudStorageDriver extends AbstractHierarchicalFilesystemDriver
             }
         }
 
-        // Set default sorting
-        $parameters = (array)GeneralUtility::_GP('SET');
-        if (empty($parameters)) {
-            $parameters['sort'] = 'file';
-            $parameters['reverse'] = 0;
-        }
-
         // Sort files
-        if ($parameters['sort'] === 'file') {
-            if ((int)$parameters['reverse']) {
+        if ($sort === 'file') {
+            if ($sortRev) {
                 uasort(
                     $this->cachedGoogleCloudStorageResources[$folderIdentifier],
                     '\Visol\GoogleCloudStorage\Utility\SortingUtility::sortByFileNameDesc'
@@ -919,8 +919,8 @@ class GoogleCloudStorageDriver extends AbstractHierarchicalFilesystemDriver
                     '\Visol\GoogleCloudStorage\Utility\SortingUtility::sortByFileNameAsc'
                 );
             }
-        } elseif ($parameters['sort'] === 'tstamp') {
-            if ((int)$parameters['reverse']) {
+        } elseif ($sort === 'tstamp') {
+            if ($sortRev) {
                 uasort(
                     $this->cachedGoogleCloudStorageResources[$folderIdentifier],
                     '\Visol\GoogleCloudStorage\Utility\SortingUtility::sortByTimeStampDesc'
@@ -937,7 +937,7 @@ class GoogleCloudStorageDriver extends AbstractHierarchicalFilesystemDriver
         if ($numberOfItems > 0) {
             $files = array_slice(
                 $this->cachedGoogleCloudStorageResources[$folderIdentifier],
-                (int)GeneralUtility::_GP('pointer'),
+                $start,
                 $numberOfItems
             );
         } else {
@@ -997,9 +997,8 @@ class GoogleCloudStorageDriver extends AbstractHierarchicalFilesystemDriver
         }
 
         // Sort
-        $parameters = (array)GeneralUtility::_GP('SET');
-        if (isset($parameters['sort']) && $parameters['sort'] === 'file') {
-            (int)$parameters['reverse']
+        if (isset($sort) && $sort === 'file') {
+            $sortRev
                 ? krsort($this->cachedFolders[$folderIdentifier])
                 : ksort($this->cachedFolders[$folderIdentifier]);
         }
