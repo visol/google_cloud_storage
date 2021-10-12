@@ -22,8 +22,8 @@ class SortingUtility
      */
     public static function sortByTimeStampAsc(array $a, array $b): int
     {
-        $valueA = strtotime($a['created_at']);
-        $valueB = strtotime($b['created_at']);
+        $valueA = strtotime($a['updated']);
+        $valueB = strtotime($b['updated']);
         if ($valueA === $valueB) {
             return 0;
         }
@@ -37,8 +37,8 @@ class SortingUtility
      */
     public static function sortByTimeStampDesc(array $a, array $b): int
     {
-        $valueA = strtotime($a['created_at']);
-        $valueB = strtotime($b['created_at']);
+        $valueA = strtotime($a['updated']);
+        $valueB = strtotime($b['updated']);
         if ($valueA === $valueB) {
             return 0;
         }
