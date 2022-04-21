@@ -6,8 +6,9 @@
     "GPL-2.0-or-later"
   ],
   "require": {
-    "google/cloud-storage": "1.1.*",
-    "guzzlehttp/psr7": "1.*",
+    "typo3/cms-core": "^11",
+    "google/cloud-storage": "^1",
+    "guzzlehttp/psr7": "^2",
     "ext-json": "*",
     "ext-pdo": "*",
     "ext-zlib": "*"
@@ -17,8 +18,9 @@
       "Visol\\GoogleCloudStorage\\": "Classes/"
     }
   },
-  "suggest": {
-  },
-  "require-dev": {
+  "extra": {
+    "typo3/cms": {
+      "extension-key": "google_cloud_storage"
+    }
   }
 }
