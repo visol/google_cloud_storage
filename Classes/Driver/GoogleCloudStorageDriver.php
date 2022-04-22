@@ -8,8 +8,9 @@ namespace Visol\GoogleCloudStorage\Driver;
  * For the full copyright and license information, please read the
  * LICENSE.md file that was distributed with this source code.
  */
-
-
+use TYPO3\CMS\Core\Log\Logger;
+use TYPO3\CMS\Core\Resource\Exception\InvalidFileNameException;
+use TYPO3\CMS\Core\Messaging\FlashMessageQueue;
 use Google\Cloud\Core\ServiceBuilder;
 use Google\Cloud\Storage\Bucket;
 use Google\Cloud\Storage\ObjectIterator;
@@ -71,12 +72,12 @@ class GoogleCloudStorageDriver extends AbstractHierarchicalFilesystemDriver
     protected $cachedPermissions = [];
 
     /**
-     * @var \TYPO3\CMS\Core\Resource\ResourceStorage
+     * @var ResourceStorage
      */
     protected $storage = null;
 
     /**
-     * @var \TYPO3\CMS\Core\Charset\CharsetConverter
+     * @var CharsetConverter
      */
     protected $charsetConversion = null;
 
@@ -187,7 +188,7 @@ class GoogleCloudStorageDriver extends AbstractHierarchicalFilesystemDriver
      */
     public function log(string $message, array $arguments = [])
     {
-        /** @var \TYPO3\CMS\Core\Log\Logger $logger */
+        /** @var Logger $logger */
         $logger = GeneralUtility::makeInstance(LogManager::class)->getLogger(__CLASS__);
         $logger->log(
             LogLevel::INFO,
@@ -1094,7 +1095,7 @@ class GoogleCloudStorageDriver extends AbstractHierarchicalFilesystemDriver
         // Strip trailing dots and return
         $cleanFileName = rtrim($cleanFileName, '.');
         if ($cleanFileName === '') {
-            throw new Exception\InvalidFileNameException(
+            throw new InvalidFileNameException(
                 'File name ' . $fileName . ' is invalid.',
                 1320288991
             );
@@ -1382,7 +1383,7 @@ class GoogleCloudStorageDriver extends AbstractHierarchicalFilesystemDriver
     /**
      * Gets the charset conversion object.
      *
-     * @return \TYPO3\CMS\Core\Charset\CharsetConverter
+     * @return CharsetConverter
      */
     protected function getCharsetConversion()
     {
@@ -1433,7 +1434,7 @@ class GoogleCloudStorageDriver extends AbstractHierarchicalFilesystemDriver
     }
 
     /**
-     * @return \TYPO3\CMS\Core\Messaging\FlashMessageQueue
+     * @return FlashMessageQueue
      */
     protected function getMessageQueue()
     {

@@ -8,7 +8,9 @@ namespace Visol\GoogleCloudStorage\Cache;
  * For the full copyright and license information, please read the
  * LICENSE.md file that was distributed with this source code.
  */
-
+use TYPO3\CMS\Core\Cache\Frontend\FrontendInterface;
+use TYPO3\CMS\Core\Cache\CacheManager;
+use TYPO3\CMS\Core\Log\Logger;
 use TYPO3\CMS\Core\Log\LogLevel;
 use TYPO3\CMS\Core\Log\LogManager;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -192,7 +194,7 @@ class GoogleCloudStorageTypo3Cache
     }
 
     /**
-     * @return \TYPO3\CMS\Core\Cache\Frontend\FrontendInterface
+     * @return FrontendInterface
      */
     protected function getCacheInstance()
     {
@@ -202,11 +204,11 @@ class GoogleCloudStorageTypo3Cache
     /**
      * Return the Cache Manager
      *
-     * @return \TYPO3\CMS\Core\Cache\CacheManager|object
+     * @return CacheManager|object
      */
     protected function getCacheManager()
     {
-        return GeneralUtility::makeInstance(\TYPO3\CMS\Core\Cache\CacheManager::class);
+        return GeneralUtility::makeInstance(CacheManager::class);
     }
 
 
@@ -216,7 +218,7 @@ class GoogleCloudStorageTypo3Cache
      */
     public function log(string $message, array $arguments = [])
     {
-        /** @var \TYPO3\CMS\Core\Log\Logger $logger */
+        /** @var Logger $logger */
         $logger = GeneralUtility::makeInstance(LogManager::class)->getLogger(__CLASS__);
         $logger->log(
             LogLevel::INFO,

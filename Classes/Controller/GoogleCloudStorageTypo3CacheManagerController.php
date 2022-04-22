@@ -8,7 +8,7 @@ namespace Visol\GoogleCloudStorage\Controller;
  * For the full copyright and license information, please read the
  * LICENSE.md file that was distributed with this source code.
  */
-
+use TYPO3\CMS\Core\Resource\StorageRepository;
 use Visol\GoogleCloudStorage\Cache\GoogleCloudStorageTypo3Cache;
 use Visol\GoogleCloudStorage\Driver\GoogleCloudStorageDriver;
 use TYPO3\CMS\Core\Resource\ResourceStorage;
@@ -22,8 +22,7 @@ class GoogleCloudStorageTypo3CacheManagerController extends ActionController
 {
 
     /**
-     * @var \TYPO3\CMS\Core\Resource\StorageRepository
-     * @inject
+     * @var StorageRepository
      */
     protected $storageRepository;
 
@@ -49,5 +48,10 @@ class GoogleCloudStorageTypo3CacheManagerController extends ActionController
     protected function getCache(int $storageUid)
     {
         return GeneralUtility::makeInstance(GoogleCloudStorageTypo3Cache::class, $storageUid);
+    }
+
+    public function injectStorageRepository(StorageRepository $storageRepository): void
+    {
+        $this->storageRepository = $storageRepository;
     }
 }

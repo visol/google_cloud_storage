@@ -1,9 +1,12 @@
 <?php
+
+use Visol\GoogleCloudStorage\Command\GcsCopyCommand;
+use Visol\GoogleCloudStorage\Command\GcsMoveCommand;
 return [
     'gcs:copy' => [
-        'class' => \Visol\GoogleCloudStorage\Command\GcsCopyCommand::class,
+        'class' => GcsCopyCommand::class,
     ],
     'gcs:move' => [
-        'class' => \Visol\GoogleCloudStorage\Command\GcsMoveCommand::class,
+        'class' => GcsMoveCommand::class,
     ],
 ];

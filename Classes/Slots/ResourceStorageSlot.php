@@ -8,7 +8,7 @@ namespace Visol\GoogleCloudStorage\Slots;
  * For the full copyright and license information, please read the
  * LICENSE.md file that was distributed with this source code.
  */
-
+use TYPO3\CMS\Core\Resource\ProcessedFileRepository;
 use TYPO3\CMS\Core\Resource\File;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
@@ -19,7 +19,7 @@ class ResourceStorageSlot
     public function preFileReplace(File $file, string $localFilePath)
     {
         /** @var $processedFileRepository \TYPO3\CMS\Core\Resource\ProcessedFileRepository */
-        $processedFileRepository = GeneralUtility::makeInstance(\TYPO3\CMS\Core\Resource\ProcessedFileRepository::class);
+        $processedFileRepository = GeneralUtility::makeInstance(ProcessedFileRepository::class);
         $processedFiles = $processedFileRepository->findAllByOriginalFile($file);
         foreach ($processedFiles as $processedFile) {
             $processedFile->delete();

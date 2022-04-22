@@ -22,13 +22,14 @@ call_user_func(
             ]
         );
 
-        $GLOBALS['TYPO3_CONF_VARS']['SYS']['fal']['registeredDrivers'][\Visol\GoogleCloudStorage\Driver\GoogleCloudStorageDriver::DRIVER_TYPE] = [
-            'class' => \Visol\GoogleCloudStorage\Driver\GoogleCloudStorageDriver::class,
-
-            'flexFormDS' => 'FILE:EXT:google_cloud_storage/Configuration/FlexForm/GoogleCloudStorageFlexForm.xml',
-            'label' => 'Google Cloud Storage',
-            'shortName' => \Visol\GoogleCloudStorage\Driver\GoogleCloudStorageDriver::DRIVER_TYPE,
-        ];
+        /** @var \TYPO3\CMS\Core\Resource\Driver\DriverRegistry $driverRegistry */
+        $driverRegistry = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\TYPO3\CMS\Core\Resource\Driver\DriverRegistry::class);
+        $driverRegistry->registerDriverClass(
+            \Visol\GoogleCloudStorage\Driver\GoogleCloudStorageDriver::class,
+            \Visol\GoogleCloudStorage\Driver\GoogleCloudStorageDriver::DRIVER_TYPE,
+            'Google Cloud Storage',
+            'FILE:EXT:google_cloud_storage/Configuration/FlexForm/GoogleCloudStorageFlexForm.xml'
+        );
 
         $GLOBALS['TYPO3_CONF_VARS']['LOG']['Visol']['GoogleCloudStorage']['Cache']['writerConfiguration'] =
         $GLOBALS['TYPO3_CONF_VARS']['LOG']['Visol']['GoogleCloudStorage']['Driver']['writerConfiguration'] = [
